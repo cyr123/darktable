@@ -195,6 +195,7 @@ void dt_image_full_path(const int imgid, char *pathname, size_t pathname_len, gb
 static void _image_local_copy_full_path(const int imgid, char *pathname, size_t pathname_len)
 {
   sqlite3_stmt *stmt;
+
   *pathname='\0';
   DT_DEBUG_SQLITE3_PREPARE_V2(dt_database_get(darktable.db),
                               "SELECT folder || '/' || filename FROM images, film_rolls "
@@ -212,8 +213,8 @@ static void _image_local_copy_full_path(const int imgid, char *pathname, size_t 
     char *c = filename + strlen(filename);
     while(*c != '.' && c > filename) c--;
 
-    // cache filename format: <cachedir>/imf-<id>-<MD5>.<ext>
-    snprintf(pathname, pathname_len, "%s/img-%d-%s%s", cachedir, imgid, md5_filename, c);
+    // cache filename format: <cachedir>/img-<MD5>.<ext>
+    snprintf(pathname, pathname_len, "%s/img-%s%s", cachedir, md5_filename, c);
 
     g_free(md5_filename);
   }
