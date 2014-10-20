@@ -1317,23 +1317,24 @@ int dt_image_local_copy_reset(const int32_t imgid)
     g_file_delete(dest, NULL, NULL);
     g_object_unref(dest);
 
-    // delete xmp if any
-    g_strlcat(destpath, ".xmp", sizeof(destpath));
-    dest = g_file_new_for_path(destpath);
-
-    if (g_file_test(destpath, G_FILE_TEST_EXISTS))
-      g_file_delete(dest, NULL, NULL);
-    g_object_unref(dest);
-
     // update cache
     const dt_image_t *cimg = dt_image_cache_read_get(darktable.image_cache, imgid);
     dt_image_t *img = dt_image_cache_write_get(darktable.image_cache, cimg);
     img->flags &= ~DT_IMAGE_LOCAL_COPY;
     dt_image_cache_write_release(darktable.image_cache, img, DT_IMAGE_CACHE_RELAXED);
     dt_image_cache_read_release(darktable.image_cache, img);
-
-    dt_control_queue_redraw_center();
   }
+
+  // delete xmp if any
+  dt_image_path_append_version(imgid, destpath, sizeof(destpath));
+  g_strlcat(destpath, ".xmp", sizeof(destpath));
+  GFile *dest = g_file_new_for_path(destpath);
+
+  if (g_file_test(destpath, G_FILE_TEST_EXISTS))
+    g_file_delete(dest, NULL, NULL);
+  g_object_unref(dest);
+
+  dt_control_queue_redraw_center();
 
   return 0;
 }
